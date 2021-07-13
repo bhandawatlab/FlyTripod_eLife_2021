@@ -53,5 +53,10 @@ CTr_R_Pro_Bottom_xy(CTr_R_Pro_Bottom_lh <= pcutoff, 1:2) = NaN;
 CTr_R_Pro_XYZ_mm = Mirror3DReconstruction(CTr_R_Pro_Top_xy, CTr_R_Pro_Bottom_xy, mm_per_pixel);
 
 % Ignore all values with speeds > 30mm/s (tracking errors)
+CTr_R_Pro_XYZ_mm = CTr_R_Pro_XYZ_mm(2:end,:);
 CTr_R_Pro_XYZ_speed = getSpeedXYZ(CTr_R_Pro_XYZ_mm, frame_rate);
-CTr_R_Pro_XYZ_speed(CTr_R_Pro_XYZ_speed >= max_speed) = NaN;
+CTr_R_Pro_XYZ_mm(CTr_R_Pro_XYZ_speed >= max_speed) = NaN;
+
+% 3D plot
+figure
+plot3(CTr_R_Pro_XYZ_mm(:,1),CTr_R_Pro_XYZ_mm(:,2),CTr_R_Pro_XYZ_mm(:,3))
