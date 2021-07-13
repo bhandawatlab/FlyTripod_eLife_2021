@@ -1,6 +1,9 @@
 %% Reconstruct joint angles from 3D leg positions in the walking chamber
 clear all; close all;
-frame_rate = 387; % FPS
+
+% Frame rate (FPS). This is the resulting frame rate after setting it to
+% 387 FPS
+frame_rate = 374.95;
 
 % Choose the date and trial number
 recording_date = datetime('3/21/2018');
