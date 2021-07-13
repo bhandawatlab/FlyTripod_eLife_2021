@@ -18,11 +18,19 @@ function xyz_mm = Mirror3DReconstruction(ij_top, ij_bottom, mm_per_pixel)
     % The depth is determined from the mirror reference frame and the
     % mirrored Y:
     y2 = ij_bottom(:, 2);
-    r_t = 170;  % Distance (mm) from the lens to the back of the chamber
+    lens_wd = 103.00;  % Lens working distance (mm)
+    
+    % Add 1/2 the chamber depth (12 mm) to get Rt:
+    r_t = lens_wd + 12;
+    
+%     r_t = 170;  % Distance (mm) from the lens to the back of the chamber
     mirror_theta = pi/4;  % Mirror angle
-    z_num = y2 - (r_t/mm_per_pixel)*tan((2*mirror_theta) - (pi/2));
-    z_den = tan(mirror_theta) - tan(2*mirror_theta - (pi/2));
-    z_mm = (z_num ./ z_den) .* mm_per_pixel;
+%     z_num = y2 - (r_t/mm_per_pixel)*tan((2*mirror_theta) - (pi/2));
+%     z_den = tan(mirror_theta) - tan((2*mirror_theta) - (pi/2));
+%     z_mm = (z_num ./ z_den) .* mm_per_pixel;
+
+    % Z = Y2 / tan(θ)
+    z_mm = (y2 ./ tan(mirror_theta)) .* mm_per_pixel;
     
     % Format the output array
     xyz_mm = [xy_mm z_mm];

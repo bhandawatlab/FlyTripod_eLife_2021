@@ -14,6 +14,9 @@ good_frames = [204 453];
 % values will be set to NaN and ignored.
 pcutoff = 0.6;
 
+% Set the max speed cut-off for ignoring tracking errors
+max_speed = 30;  % mm/s
+
 % Read the data file
 data_file = "D:\Bhandawatlab_Drexel Dropbox\Bhandawat_Lab_Transfer\Jonathan\Walking Chamber analysis of existing data\DataFiles.xlsx";
 T=readtable(data_file);
@@ -28,7 +31,7 @@ tracking_data = load(fly_data.tracking_file{1}, '-mat');
 
 % Load the pixel spacing
 pixel_spacing_data = load("D:\GitHub\FlyTripod_eLife_2021\Preprocessing\PixelSpacing.mat", '-mat');
-mm_per_pixel = 1/pixel_spacing_data.pixels_mm;
+mm_per_pixel = pixel_spacing_data.mm_pixel;
 
 %% Run 3D reconstruction
 %% CTr R Pro:
@@ -51,3 +54,4 @@ CTr_R_Pro_XYZ_mm = Mirror3DReconstruction(CTr_R_Pro_Top_xy, CTr_R_Pro_Bottom_xy,
 
 % Ignore all values with speeds > 30mm/s (tracking errors)
 CTr_R_Pro_XYZ_speed = getSpeedXYZ(CTr_R_Pro_XYZ_mm, frame_rate);
+CTr_R_Pro_XYZ_speed(CTr_R_Pro_XYZ_speed >= max_speed) = NaN;

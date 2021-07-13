@@ -28,3 +28,10 @@ slide_thickness_pixels = rectangle_dims(4);
 
 % Determine the pixel spacing (pixels/mm)
 pixels_mm = slide_thickness_pixels / slide_thickness_mm;
+
+% Chanwoo's previous measurement)
+mm_pixel = 0.0121;  % mm/pixel
+
+% Save the data
+pixel_spacing_file = 'D:\GitHub\FlyTripod_eLife_2021\Preprocessing\PixelSpacing.mat';
+save(pixel_spacing_file, 'mm_pixel');
