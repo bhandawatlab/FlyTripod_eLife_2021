@@ -29,37 +29,18 @@ trial_numbers = str2num(char(T.trial_number));
 recording_dates = T.recording_date;
 fly_data = T(and(recording_dates == recording_date, trial_numbers == trial_number), :);
 
-% Load the tracking data
-tracking_data = load(fly_data.tracking_file{1}, '-mat');
-
 % Load the pixel spacing
 pixel_spacing_data = load("D:\GitHub\FlyTripod_eLife_2021\Preprocessing\PixelSpacing.mat", '-mat');
 mm_per_pixel = pixel_spacing_data.mm_pixel;
 
 %% Run 3D reconstruction
-%% CTr R Pro:
-% Top:
-CTr_R_Pro_Top_xy = [tracking_data.CTr_R_Pro_Top.x' tracking_data.CTr_R_Pro_Top.y'];
+% Update the tracking data file with 3D-reconstructed points
+tracking_data_file = fly_data.tracking_file{1};
+tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixel, frame_rate, max_speed, pcutoff);
 
-% Ignore all tracks with low likelihood
-CTr_R_Pro_Top_lh = tracking_data.CTr_R_Pro_Top.likelihood;
-CTr_R_Pro_Top_xy(CTr_R_Pro_Top_lh <= pcutoff, 1:2) = NaN;
+% Plot the leg joints in 3D
+plot3DJointPositions(tracking_data);
 
-% Bottom:
-CTr_R_Pro_Bottom_xy = [tracking_data.CTr_R_Pro_Bottom.x' tracking_data.CTr_R_Pro_Bottom.y'];
-
-% Ignore all tracks with low likelihood
-CTr_R_Pro_Bottom_lh = tracking_data.CTr_R_Pro_Bottom.likelihood;
-CTr_R_Pro_Bottom_xy(CTr_R_Pro_Bottom_lh <= pcutoff, 1:2) = NaN;
-
-% Reconstruct
-CTr_R_Pro_XYZ_mm = Mirror3DReconstruction(CTr_R_Pro_Top_xy, CTr_R_Pro_Bottom_xy, mm_per_pixel);
-
-% Ignore all values with speeds > 30mm/s (tracking errors)
-CTr_R_Pro_XYZ_mm = CTr_R_Pro_XYZ_mm(2:end,:);
-CTr_R_Pro_XYZ_speed = getSpeedXYZ(CTr_R_Pro_XYZ_mm, frame_rate);
-CTr_R_Pro_XYZ_mm(CTr_R_Pro_XYZ_speed >= max_speed) = NaN;
-
-% 3D plot
-figure
-plot3(CTr_R_Pro_XYZ_mm(:,1),CTr_R_Pro_XYZ_mm(:,2),CTr_R_Pro_XYZ_mm(:,3))
+% % 3D plot
+% figure
+% plot3(CTr_R_Pro_XYZ_mm(:,1),CTr_R_Pro_XYZ_mm(:,2),CTr_R_Pro_XYZ_mm(:,3))
