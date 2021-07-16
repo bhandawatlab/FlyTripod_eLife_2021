@@ -13,10 +13,6 @@ function plot3DJointPositions(tracking_data)
         'Ta_XYZ'
         };
     
-    % Save a movie of the joint positions
-    % (Reference: https://www.mathworks.com/help/matlab/ref/getframe.html)
-    % https://www.mathworks.com/help/matlab/ref/movie.html
-    
     figure;
     
     %% Plot the anterior-posterior points

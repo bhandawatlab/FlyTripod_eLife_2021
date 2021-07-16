@@ -18,7 +18,7 @@ good_frames = [204 453];
 pcutoff = 0.6;
 
 % Set the max speed cut-off for ignoring tracking errors
-max_speed = 30;  % mm/s
+max_speed = 80;  % mm/s
 
 % Read the data file
 data_file = "D:\Bhandawatlab_Drexel Dropbox\Bhandawat_Lab_Transfer\Jonathan\Walking Chamber analysis of existing data\DataFiles.xlsx";
@@ -38,8 +38,11 @@ mm_per_pixel = pixel_spacing_data.mm_pixel;
 tracking_data_file = fly_data.tracking_file{1};
 tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixel, frame_rate, max_speed, pcutoff);
 
-% Plot the leg joints in 3D
-plot3DJointPositions(tracking_data);
+% % Plot the leg joints in 3D
+% plot3DJointPositions(tracking_data);
+
+% Save the 3D leg joint positions as a movie
+save3DJointMovie(tracking_data_file, tracking_data);
 
 % % 3D plot
 % figure

@@ -15,6 +15,10 @@ function tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixe
     % Load the tracking data
     tracking_data = load(tracking_data_file, '-mat');
     
+    % Keep track of all bad frames
+    frame_count = length(tracking_data.('Anterior_Bottom').x);
+    bad_frame_indices = zeros(frame_count-1, 1);
+    
     % Loop through all pairs of points, 3D-reconstruct, and store the result
     for pair_index = 1:size(point_pairs, 1)
         % Field name for bottom view
@@ -55,9 +59,16 @@ function tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixe
         
         % Store the XYZ field
         tracking_data.(reconstructed_name) = xyz_mm;
+        
+        %% Update the bad frame indices
+        nan_positions = isnan(xyz_mm);
+        nan_logical = logical(sum(nan_positions, 2));
+        bad_frame_indices = or(bad_frame_indices, nan_logical);
     end
     
+    %% Add the bad frames to the tracking data
+    tracking_data.bad_frames = bad_frame_indices;
+    
     %% Save the updated tracking file
-    save(tracking_data_file, 'tracking_data');
+    save(tracking_data_file, '-struct', 'tracking_data');
 end
-
