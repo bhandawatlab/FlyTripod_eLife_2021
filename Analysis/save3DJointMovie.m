@@ -35,7 +35,6 @@ function save3DJointMovie(tracking_data_file, tracking_data)
     %% First determine the plot limits
     for n = 1:good_frame_count
         frame_index = good_frame_indices(n);
-        %% Plot the leg
         for joint_index = 1:joint_count
             % Access the joint position
             joint_name = joint_names{joint_index};
