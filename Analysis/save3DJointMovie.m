@@ -54,7 +54,9 @@ function save3DJointMovie(tracking_data_file, tracking_data)
     %% Save a *.GIF of the leg positions
     % Determine the filename
     split_filename = split(tracking_data_file, '.mat');
-    gif_filename = [split_filename{1} '.gif'];
+    gif_front_xy_filename = [split_filename{1} '_FrontXY.gif'];
+    gif_side_yz_filename = [split_filename{1} '_SideYZ.gif'];
+    gif_top_xz_filename = [split_filename{1} '_TopXZ.gif'];
     
     % Generate the plots
     for n = 1:good_frame_count
@@ -83,7 +85,7 @@ function save3DJointMovie(tracking_data_file, tracking_data)
             zlim(zlim_joints)
             hold on
         end
-        legend(joint_names, 'Location', 'southeast', 'Interpreter', 'none')
+        legend(joint_names, 'Location', 'southeastoutside', 'Interpreter', 'none')
 
         % Plot the leg
         h = plot3(leg_x, leg_y, leg_z, 'k');
@@ -100,9 +102,15 @@ function save3DJointMovie(tracking_data_file, tracking_data)
         % Set the aspect ratio as equal
         daspect([1 1 1])
         
-        % Flip the Z-axis
-        set(gca, 'ZDir','reverse')
+        % Flip the axes
         set(gca, 'YDir','reverse')
+        set(gca, 'ZDir','reverse')
+        
+        %% Save the front view as a *.GIF (https://www.mathworks.com/help/matlab/ref/imwrite.html#btv452g-1)
+        % Rotate the view to align it into the XY axis (Y pointing
+        % vertically)
+        % (https://www.mathworks.com/help/matlab/ref/view.html#d123e1472755)
+        view(0,90);
 
         % Capture the plot as an image 
         drawnow
@@ -110,11 +118,42 @@ function save3DJointMovie(tracking_data_file, tracking_data)
         im = frame2im(current_frame); 
         [imind,cm] = rgb2ind(im,256);
 
-        % Save as a *.GIF (https://www.mathworks.com/help/matlab/ref/imwrite.html#btv452g-1)
         if n == 1
-            imwrite(imind, cm, gif_filename,'gif','LoopCount',Inf,'DelayTime',1/30);
+            imwrite(imind, cm, gif_front_xy_filename,'gif','LoopCount',Inf,'DelayTime',1/30);
         else
-            imwrite(imind, cm, gif_filename,'gif','WriteMode','append','DelayTime',1/30);
+            imwrite(imind, cm, gif_front_xy_filename,'gif','WriteMode','append','DelayTime',1/30);
+        end
+        
+        %% Save the side view as a *.GIF (https://www.mathworks.com/help/matlab/ref/imwrite.html#btv452g-1)
+        % Rotate the view to align it into the YZ axis (Y pointing
+        % horizontally)
+        view(90,0);
+        
+        % Capture the plot as an image 
+        drawnow
+        current_frame = getframe(main_figure); 
+        im = frame2im(current_frame); 
+        [imind,cm] = rgb2ind(im,256);
+        if n == 1
+            imwrite(imind, cm, gif_side_yz_filename,'gif','LoopCount',Inf,'DelayTime',1/30);
+        else
+            imwrite(imind, cm, gif_side_yz_filename,'gif','WriteMode','append','DelayTime',1/30);
+        end
+        
+        %% Save the top-down view as a *.GIF (https://www.mathworks.com/help/matlab/ref/imwrite.html#btv452g-1)
+        % Rotate the view to align it into the XZ axis (X pointing
+        % horizontally)
+        view(0,0);
+        
+        % Capture the plot as an image 
+        drawnow
+        current_frame = getframe(main_figure); 
+        im = frame2im(current_frame); 
+        [imind,cm] = rgb2ind(im,256);
+        if n == 1
+            imwrite(imind, cm, gif_top_xz_filename,'gif','LoopCount',Inf,'DelayTime',1/30);
+        else
+            imwrite(imind, cm, gif_top_xz_filename,'gif','WriteMode','append','DelayTime',1/30);
         end
     end
     

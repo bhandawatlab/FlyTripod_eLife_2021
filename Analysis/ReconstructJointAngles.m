@@ -40,13 +40,14 @@ tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixel, frame_
 
 %% Plot the XYZ points for each joint
 close all
-plotJointXYZPoints(tracking_data);
+% plotJointXYZPoints(tracking_data);
 
 % %% Plot the limb lengths
 % limb_length_data = plotLimbLengths(tracking_data);
 
-% %% Save the 3D leg joint positions as a movie
-% save3DJointMovie(tracking_data_file, tracking_data);
+%% Save the 3D leg joint positions as a movie
+close all
+save3DJointMovie(tracking_data_file, tracking_data);
 
 % % 3D plot
 % figure
