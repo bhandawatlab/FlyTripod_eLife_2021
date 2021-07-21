@@ -38,8 +38,12 @@ mm_per_pixel = pixel_spacing_data.mm_pixel;
 tracking_data_file = fly_data.tracking_file{1};
 tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixel, frame_rate, max_speed, pcutoff);
 
-%% Plot the limb lengths
-limb_length_data = plotLimbLengths(tracking_data);
+%% Plot the XYZ points for each joint
+close all
+plotJointXYZPoints(tracking_data);
+
+% %% Plot the limb lengths
+% limb_length_data = plotLimbLengths(tracking_data);
 
 % %% Save the 3D leg joint positions as a movie
 % save3DJointMovie(tracking_data_file, tracking_data);
