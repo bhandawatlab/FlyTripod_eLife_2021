@@ -39,15 +39,20 @@ tracking_data_file = fly_data.tracking_file{1};
 tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixel, frame_rate, max_speed, pcutoff);
 
 %% Plot the XYZ points for each joint
-close all
+% close all
 % plotJointXYZPoints(tracking_data);
 
-% %% Plot the limb lengths
-% limb_length_data = plotLimbLengths(tracking_data);
+%% Plot the limb lengths
+[limb_lengths, limb_length_means] = plotLimbLengths(tracking_data);
 
 %% Save the 3D leg joint positions as a movie
-close all
-save3DJointMovie(tracking_data_file, tracking_data);
+% close all
+% save3DJointMovie(tracking_data_file, tracking_data);
+
+%% Estimate the thorax-coxa position
+% Estimate the coxa length
+coxa_length = estimateCoxaLength(limb_length_means);
+% ThC_XYZ = findThoraxCoxaJoint(tracking_data);
 
 % % 3D plot
 % figure

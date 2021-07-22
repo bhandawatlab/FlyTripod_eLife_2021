@@ -1,4 +1,4 @@
-function limb_lengths = plotLimbLengths(tracking_data)
+function [limb_lengths, limb_length_means] = plotLimbLengths(tracking_data)
     %PLOTLIMBLENGTHS Plot a summary of the limb lengths for a single fly.
     % Set up a structure describing the proximal and distal joint field
     % names for each limb
@@ -15,6 +15,7 @@ function limb_lengths = plotLimbLengths(tracking_data)
     
     % Set up the output structure
     limb_lengths = struct();
+    limb_length_means = struct();
     
     % Access the good frame indices
     good_frame_indices = find(~tracking_data.bad_frames);
@@ -56,6 +57,8 @@ function limb_lengths = plotLimbLengths(tracking_data)
         % Get the limb length mean and standard deviation in um
         limb_length_mean = mean(joint_distance_mm*1000);
         limb_length_std_dev = std(joint_distance_mm*1000);
+        dist_fieldname = [split_field_str{1} '_mean_length_um'];
+        limb_length_means(1).(dist_fieldname) = limb_length_mean;
         
         % Plot the mean and standard deviation
         errorbar(limb_index, limb_length_mean, limb_length_std_dev, 'x')
