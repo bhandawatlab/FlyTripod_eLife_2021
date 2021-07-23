@@ -15,5 +15,5 @@ function coxa_length = estimateCoxaLength(limb_lengths)
     tibia_length = limb_lengths.('tibia_mean_length_um');
 
     % Estimate the coxa length (um)
-    coxa_length = tibia_length * coxa_proportion_of_tibia; 
+    coxa_length = tibia_length * coxa_proportion_of_tibia;
 end
