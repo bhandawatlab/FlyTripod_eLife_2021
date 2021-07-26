@@ -47,12 +47,15 @@ tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixel, frame_
 
 %% Save the 3D leg joint positions as a movie
 % close all
-save3DJointMovie(tracking_data_file, tracking_data);
+% save3DJointMovie(tracking_data_file, tracking_data);
 
 %% Estimate the thorax-coxa position
 % Estimate the coxa length
-% coxa_length = estimateCoxaLength(limb_length_means);
-% ThC_XYZ = findThoraxCoxaJoint(tracking_data);
+coxa_length = estimateCoxaLength(limb_length_means);
+
+%% Plot the leg relative to the AP-axis with the origin at the posterior point
+close all
+ThC_R_Pro_XYZ = plotLegAtAnteriorPosteriorAxis(tracking_data, coxa_length);
 
 % % 3D plot
 % figure
