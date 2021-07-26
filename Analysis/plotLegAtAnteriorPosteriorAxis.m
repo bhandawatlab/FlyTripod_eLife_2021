@@ -26,7 +26,7 @@ function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_
     Ta_XYZ = tracking_data.Ta_XYZ(good_frame_indices, :);
     
     % Define the posterior-anterior vector relative to the posterior point
-    PA_vec = Anterior_XYZ - Posterior_XYZ;
+    PA_XYZ = Anterior_XYZ - Posterior_XYZ;
     
     % Define the position vectors relative to the posterior
     % point. The origin is now at the posterior point.
@@ -34,39 +34,37 @@ function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_
     FTi_XYZ_PA = FTi_XYZ - Posterior_XYZ;
     TiTa_XYZ_PA = TiTa_XYZ - Posterior_XYZ;
     Ta_XYZ_PA = Ta_XYZ - Posterior_XYZ;
-    
-    % Define new normalized bases for each point relative to the AP-axis
-    % using the double cross product method
-    % u1 is the AP-axis
-    u1 = PA_vec ./ vecnorm(PA_vec, 2, 2);
-    point_count = size(CTr_XYZ, 1);
-    y_axis = repmat([0 1 0], point_count, 1);
-    
-    % u2 is the vector orthogonal to the standard Y (DV) and u1
-    % axes
-    u2 = cross(u1, y_axis, 2);
-    u2 = u2 / norm(u2);
-    
-    % u3 is the vector orthogonal to the u1 and u2 axes
-    u3 = cross(u1, u2, 2);
-    u3 = u3 / norm(u3);
-    
-    % Plot the axes
-%     plotAxes(u1(1, :), u2(1, :), u3(1, :));
 
     % Loop for transforming the CTr positions to the AP vector bases
+    point_count = size(PA_XYZ, 1);
     CTr_U = NaN(point_count, 3);
     FTi_U = NaN(point_count, 3);
     TiTa_U = NaN(point_count, 3);
     Ta_U = NaN(point_count, 3);
     for n=1:point_count
-        % Get the basis vectors
-        u1_vec = u1(n, :);
-        u2_vec = u2(n, :);
-        u3_vec = u3(n, :);
+        % Get the anterior-posterior axis
+        PA_XYZ_vec = PA_XYZ(n, :);
+        
+        % Define new normalized bases for each point relative to the
+        % AP-axis using the double cross product method
+        % u1 is the AP-axis
+        u1 = PA_XYZ_vec / norm(PA_XYZ_vec);
+        y_axis = [0 1 0];
+
+        % u2 is the vector orthogonal to the standard Y (DV) and u1
+        % axes
+        u2 = cross(u1, y_axis);
+        u2 = u2 / norm(u2);
+
+        % u3 is the vector orthogonal to the u1 and u2 axes
+        u3 = cross(u1, u2);
+        u3 = u3 / norm(u3);
+
+        % Plot the axes
+    %     plotAxes(u1(1, :), u2(1, :), u3(1, :));
                 
         % Set up the transition matrix between bases
-        U = [u1_vec' u2_vec' u3_vec'];
+        U = [u1' u2' u3'];
         U_inv = inv(U);
 
         % Transform the CTr positions to the AP vector basis
