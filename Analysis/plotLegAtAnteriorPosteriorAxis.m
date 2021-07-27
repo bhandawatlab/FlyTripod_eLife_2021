@@ -97,12 +97,13 @@ function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_
     coxa_length_um = sphere_model.Radius * 1000;
     sprintf('Coxa length: %.3f µm\n', coxa_length_um);
     
-%     % Plot the sphere
-%     figure;
-%     plot(sphere_model)
-%     hold on
-%     scatter3(CTr_U(:,1), CTr_U(:,2), CTr_U(:,3), 'filled')
-%     hold off
+    % Plot the sphere
+    figure;
+    plot(sphere_model);
+    alpha 0
+    hold on
+    scatter3(CTr_U(:,1), CTr_U(:,2), CTr_U(:,3), 'filled')
+    hold off
         
     %% Determine the plot limits
     [data_xlim, data_ylim, data_zlim] =...
