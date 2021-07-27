@@ -4,12 +4,13 @@ function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_
     
     % Determine the output *.GIF filename
     split_filename = split(tracking_data_file, '.mat');
-    gif_filename = [split_filename{1} '_AP-axis.gif'];
-    gif_xz_filename = [split_filename{1} '_AP-axis-XZ.gif'];
+    gif_filename = [split_filename{1} '_AP-axis-ThC.gif'];
+    gif_xz_filename = [split_filename{1} '_AP-axis-XZ-ThC.gif'];
     
     % Colors  and names for the four labels
     label_colors = {'#A2142F' '#77AC30' '#7E2F8E' '#0072BD'};
     label_names = {...
+        'ThC_R_Pro_XYZ'
         'CTr_R_Pro_XYZ'
         'FTi_R_Pro_XYZ'
         'TiTa_R_Pro_XYZ'
@@ -35,7 +36,7 @@ function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_
     TiTa_XYZ_PA = TiTa_XYZ - Posterior_XYZ;
     Ta_XYZ_PA = Ta_XYZ - Posterior_XYZ;
 
-    % Loop for transforming the CTr positions to the AP vector bases
+    %% Loop for transforming the CTr positions to the AP vector bases
     point_count = size(PA_XYZ, 1);
     CTr_U = NaN(point_count, 3);
     FTi_U = NaN(point_count, 3);
@@ -88,11 +89,27 @@ function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_
         Ta_U(n, :) = Ta_U_vec;
     end
     
-    % Determine the plot limits
+    %% Find the ThC joint by fitting a sphere to the CTr point cloud
+    CTr_U_point_cloud = pointCloud(CTr_U);
+    max_distance = 500;
+    sphere_model = pcfitsphere(CTr_U_point_cloud, max_distance);
+    ThC_U = sphere_model.Center;
+    coxa_length_um = sphere_model.Radius * 1000;
+    sprintf('Coxa length: %.3f µm\n', coxa_length_um);
+    
+%     % Plot the sphere
+%     figure;
+%     plot(sphere_model)
+%     hold on
+%     scatter3(CTr_U(:,1), CTr_U(:,2), CTr_U(:,3), 'filled')
+%     hold off
+        
+    %% Determine the plot limits
     [data_xlim, data_ylim, data_zlim] =...
         getTrackingDataLimits(CTr_U, FTi_U, TiTa_U, Ta_U);
     
     %% Plot
+    % TODO: Add empty plots in the NaN regions
     % Initialize the figure
     main_figure = figure;
     axis tight manual
@@ -101,9 +118,9 @@ function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_
     set(gcf,'renderer','painters')
     for n=1:point_count        
         % Plot the leg
-        leg_x = [CTr_U(n,1); FTi_U(n,1); TiTa_U(n,1); Ta_U(n,1)];
-        leg_y = [CTr_U(n,2); FTi_U(n,2); TiTa_U(n,2); Ta_U(n,2)];
-        leg_z = [CTr_U(n,3); FTi_U(n,3); TiTa_U(n,3); Ta_U(n,3)];
+        leg_x = [ThC_U(1,1); CTr_U(n,1); FTi_U(n,1); TiTa_U(n,1); Ta_U(n,1)];
+        leg_y = [ThC_U(1,2); CTr_U(n,2); FTi_U(n,2); TiTa_U(n,2); Ta_U(n,2)];
+        leg_z = [ThC_U(1,3); CTr_U(n,3); FTi_U(n,3); TiTa_U(n,3); Ta_U(n,3)];
         h = plot3(leg_x, leg_y, leg_z, 'k');
         hold on
         
@@ -111,6 +128,7 @@ function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_
         h.Annotation.LegendInformation.IconDisplayStyle = 'off';
         
         % Plot the joints and tarsus tip
+        scatter3(ThC_U(1,1), ThC_U(1,2), ThC_U(1,3), 'MarkerFaceColor', 'black', 'MarkerEdgeColor', 'k');
         scatter3(CTr_U(n,1), CTr_U(n,2), CTr_U(n,3), 'MarkerFaceColor', label_colors{1}, 'MarkerEdgeColor', 'k');
         scatter3(FTi_U(n,1), FTi_U(n,2), FTi_U(n,3), 'MarkerFaceColor', label_colors{2}, 'MarkerEdgeColor', 'k');
         scatter3(TiTa_U(n,1), TiTa_U(n,2), TiTa_U(n,3), 'MarkerFaceColor', label_colors{3}, 'MarkerEdgeColor', 'k');
