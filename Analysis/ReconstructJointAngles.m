@@ -43,7 +43,7 @@ tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixel, frame_
 % plotJointXYZPoints(tracking_data);
 
 %% Plot the limb lengths
-[limb_lengths, limb_length_means] = plotLimbLengths(tracking_data);
+% [limb_lengths, limb_length_means] = plotLimbLengths(tracking_data);
 
 %% Save the 3D leg joint positions as a movie
 % close all
@@ -51,11 +51,15 @@ tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixel, frame_
 
 %% Estimate the thorax-coxa position
 % Estimate the coxa length
-coxa_length = estimateCoxaLength(limb_length_means);
+% coxa_length = estimateCoxaLength(limb_length_means);
 
-%% Plot the leg relative to the AP-axis with the origin at the posterior point
+% %% Plot the leg relative to the AP-axis with the origin at the posterior point
+% close all
+% plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data);
+
+%% Plot the interpolated leg
 close all
-plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_length);
+plotInterpolatedLeg(tracking_data_file, tracking_data);
 
 % % 3D plot
 % figure

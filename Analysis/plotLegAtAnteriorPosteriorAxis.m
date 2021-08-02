@@ -1,4 +1,4 @@
-function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_length)
+function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data)
     %plotLegAtAnteriorPosteriorAxis Plot the leg relative to the
     %anterior-posterior body axis. Save an animated *.GIF of this plot.
     
@@ -22,12 +22,6 @@ function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_
     good_frame_indices = find(good_frame_logical);
     start_good_frame = good_frame_indices(1);
     end_good_frame = good_frame_indices(end);
-%     Anterior_XYZ = tracking_data.Anterior_XYZ(good_frame_indices, :);
-%     Posterior_XYZ = tracking_data.Posterior_XYZ(good_frame_indices, :);
-%     CTr_XYZ = tracking_data.CTr_R_Pro_XYZ(good_frame_indices, :);
-%     FTi_XYZ = tracking_data.FTi_R_Pro_XYZ(good_frame_indices, :);
-%     TiTa_XYZ = tracking_data.TiTa_R_Pro_XYZ(good_frame_indices, :);
-%     Ta_XYZ = tracking_data.Ta_XYZ(good_frame_indices, :);
     Anterior_XYZ = tracking_data.Anterior_XYZ;
     Posterior_XYZ = tracking_data.Posterior_XYZ;
     CTr_XYZ = tracking_data.CTr_R_Pro_XYZ;
@@ -123,7 +117,6 @@ function plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data, coxa_
         getTrackingDataLimits(CTr_U, FTi_U, TiTa_U, Ta_U);
     
     %% Plot
-    % TODO: Add empty plots in the NaN regions
     % Initialize the figure
     main_figure = figure;
     axis tight manual
