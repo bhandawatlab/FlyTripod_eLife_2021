@@ -53,13 +53,29 @@ tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixel, frame_
 % Estimate the coxa length
 % coxa_length = estimateCoxaLength(limb_length_means);
 
-% %% Plot the leg relative to the AP-axis with the origin at the posterior point
-% close all
-% plotLegAtAnteriorPosteriorAxis(tracking_data_file, tracking_data);
+%% Plot the leg relative to the AP-axis with the origin at the posterior point
+ap_axis_points = getAPAxisPoints(tracking_data);
+% plotAPAxisInterpolatedLeg(ap_axis_points, tracking_data_file);
 
-%% Plot the interpolated leg
-close all
-plotInterpolatedLeg(tracking_data_file, tracking_data);
+%% Get the joint angles from the leg points transformed tot he 
+jk = JointKinematics(ap_axis_points);
+joint_angles = jk.run();
+
+%% Save the angles
+tracking_data.('Joint_Angles') = joint_angles;
+save(tracking_data_file, '-struct', 'tracking_data');
+
+%% Plot in degrees
+figure;
+plot(joint_angles.lev_dep * (180/pi))
+hold on
+plot(joint_angles.ret_pro * (180/pi))
+plot(joint_angles.ext_flex * (180/pi))
+plot(joint_angles.pron_sup * (180/pi))
+hold off
+
+%% Plot the leg beside the video
+
 
 % % 3D plot
 % figure
