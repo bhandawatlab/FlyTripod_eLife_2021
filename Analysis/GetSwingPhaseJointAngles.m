@@ -38,21 +38,6 @@ mm_per_pixel = pixel_spacing_data.mm_pixel;
 tracking_data_file = fly_data.tracking_file{1};
 tracking_data = updateFly3DTrackingData(tracking_data_file, mm_per_pixel, frame_rate, max_speed, pcutoff);
 
-%% Plot the XYZ points for each joint
-% close all
-% plotJointXYZPoints(tracking_data);
-
-%% Plot the limb lengths
-% [limb_lengths, limb_length_means] = plotLimbLengths(tracking_data);
-
-%% Save the 3D leg joint positions as a movie
-% close all
-% save3DJointMovie(tracking_data_file, tracking_data);
-
-%% Estimate the thorax-coxa position
-% Estimate the coxa length
-% coxa_length = estimateCoxaLength(limb_length_means);
-
 %% Plot the leg relative to the AP-axis with the origin at the posterior point
 ap_axis_points = getAPAxisPoints(tracking_data);
 % plotAPAxisInterpolatedLeg(ap_axis_points, tracking_data_file);
@@ -80,41 +65,39 @@ tarsus_height_swing_phase(tarsus_height <= baseline_height) = NaN;
 figure; plot(tarsus_height_swing_phase)
 title("Tarsus Height - Baseline")
 
-% Split up each swing phase and store in a cell array if it satisfies the
-% duration condition
+% Split up each swing phase and store frames in a cell array if it
+% satisfies the duration condition
 min_swing_duration = 10;  % 10 ms
 min_swing_frame_count = (min_swing_duration / 1000) * frame_rate;
-swing_phase_data = {};
-current_swing = [];
+swing_phase_frames = {};
+current_swing_height = [];
+current_swing_frames = [];
 for n=1:length(tarsus_height_swing_phase)
     height_value = tarsus_height_swing_phase(n);
     
     % If we have reached the end of a swing, store the current swing
     if isnan(height_value)
-        if ~isempty(current_swing)
+        if ~isempty(current_swing_frames)
             % Check if the swing satisfies the duration condition
-            if length(current_swing) >= min_swing_frame_count
+            if length(current_swing_frames) >= min_swing_frame_count
                 
                 % Check if the swing satisfies the condition of only having
                 % one local maxima
-                smoothed_swing = smoothdata(current_swing);
+                smoothed_swing_height = smoothdata(current_swing_height);
                 %figure; plot(smoothed_swing)
-                if length(findpeaks(smoothed_swing)) == 1
-                    swing_phase_data{end+1} = current_swing;
+                if length(findpeaks(smoothed_swing_height)) == 1
+                    swing_phase_frames{end+1} = current_swing_frames;
                 end
             end
         end
-        current_swing = [];
+        current_swing_frames = [];
+        current_swing_height = [];
     elseif ~isnan(height_value)
-        current_swing = [current_swing; height_value];
+        current_swing_frames = [current_swing_frames; n];
+        current_swing_height = [current_swing_height; height_value];
     end
 end
 
-% Determine the swing phase data output filename
-file_parts = split(tracking_data_file, 'resnet50');
-swing_data_filename = [file_parts{1} 'SwingPhases.mat'];
-
-% Save the swing data
-swing_phase_struct = struct();
-swing_phase_struct(1).swing_phase_data = swing_phase_data;
-save(swing_data_filename, '-struct', 'swing_phase_struct');
+%% Add the swing phase frames to the tracking data file
+tracking_data(1).swing_phase_frames = swing_phase_frames;
+save(tracking_data_file, '-struct', 'tracking_data');
