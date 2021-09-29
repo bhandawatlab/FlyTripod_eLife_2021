@@ -75,8 +75,6 @@ plot(joint_angles.pron_sup * (180/pi))
 hold off
 
 %% Plot the leg beside the video
-
-
 % % 3D plot
 % figure
 % plot3(CTr_R_Pro_XYZ_mm(:,1),CTr_R_Pro_XYZ_mm(:,2),CTr_R_Pro_XYZ_mm(:,3))
