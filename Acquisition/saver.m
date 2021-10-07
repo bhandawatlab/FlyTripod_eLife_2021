@@ -5,7 +5,7 @@ function saver(data)
 
 matdir = pwd;
 
-viddir = ['..' filesep '..' filesep 'Data' filesep 'ProcessedData' filesep datestr(date, 'yymmdd'),'Sideview'];
+viddir = ['..' filesep '..' filesep 'Data' filesep 'RawData' filesep datestr(date, 'yymmdd'),'Sideview'];
 mkdir(viddir);
 cd(viddir);
 
@@ -30,9 +30,16 @@ else
        newname=max(filename)+1;
 end
 
-disp('Worthy! Saving .mat...');
+newdir = num2str(newname);
+mkdir(newdir)
+cd(newdir)
+
 newnamemat = strcat(num2str(newname), '.mat');
-save(newnamemat,'data');
+fprintf('Worthy! Saving to %s\n', viddir);
+save(newnamemat,'data', '-v7.3');
+
+%send_text_message(getenv('phone'), 'T-Mobile', 'Prompt', 'Saved another one')
+
 disp('Saved! Resume monitoring... Press any key to stop.');
 clear frames;
 
