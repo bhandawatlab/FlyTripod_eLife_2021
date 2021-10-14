@@ -4,11 +4,11 @@
 
 function PreviewUpdate(obj,event,hImage)
 
-global total_frame_count savecount frame_queue diffarray vid rROI w frame_queue_length previous_frame;
+global total_frame_count savecount frame_queue diffarray vid rROI w frame_queue_length previous_frame previous_sad;
 
     try
         % Threshold for the sum of absolute differences
-        sad_threshold = 20;
+        sad_threshold = 5500;
 
         numavg = 2; %Number of frames to average. Need this to smooth out noise.
         %Change the value to appropriate value for your application, if needed. 
@@ -21,21 +21,32 @@ global total_frame_count savecount frame_queue diffarray vid rROI w frame_queue_
 
         % Add it to the frame queue
         current_frame_index = total_frame_count;
-%         frame_queue(:,:,current_frame_index)= current_frame;
 
-        % If the number of frames we want to average is reached
-        if rem(current_frame_index,numavg)==0
-            %Quantify motion in a given range of frames
-%             diffarray(current_frame_index-(numavg-1):current_frame_index)=diffavg(frame_queue(:,:,current_frame_index-(numavg-1):current_frame_index));
-%             diffarray = diffarray(1:current_frame_index);
-%             
-%             previous_max_diff = sum(diff(norm(frame_queue(:,:,current_frame_index-(numavg-1):current_frame_index), 1, 3)), 'all');
-%             disp("Previous max: ");
-%             disp(previous_max_diff);
-% 
-%             %If the quantified value is above a certain threshold:
-%             previous_motion_score = diffarray(current_frame_index);
-            previous_motion_score = SumAbsDiff(current_frame, previous_frame);
+%         % If the number of frames we want to average is reached
+%         if rem(current_frame_index,numavg)==0
+        % Quantify motion in a given range of frames
+        previous_motion_score = SumAbsDiff(current_frame, previous_frame);
+        previous_sad = [previous_sad previous_motion_score];            
+        if length(previous_sad) == 100
+            sad_mean = mean(previous_sad);
+            if sad_mean > sad_threshold
+                fprintf("Motion detected: %.1f\n", sad_mean)
+                
+                % start acquisition
+                trigger(vid);
+                disp('Recording...');
+                [frames, timeStamp] = getdata(vid);
+                s = struct('timeStamp', timeStamp, 'frames', frames);
+                saver(s);
+                savecount=savecount+1;
+                clear frames;
+                start(vid);
+            else
+                fprintf("%d\n", sad_mean)
+            end
+            previous_sad = [];
+        end
+                
 %             if previous_motion_score >= t1
 % 
 %                 %start acquisition
@@ -63,7 +74,7 @@ global total_frame_count savecount frame_queue diffarray vid rROI w frame_queue_
 %             end
         end
 
-        subplot(2,1,2);
+%         subplot(2,2,3);
 %         plot(diffarray);
         drawnow
 
