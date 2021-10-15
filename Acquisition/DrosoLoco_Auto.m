@@ -28,7 +28,7 @@
 clear; close all; daqreset;
 imaqreset;
 
-global total_frame_count savecount vid src vid2 src2 previous_frame trigger_obj daq_output;
+global total_frame_count savecount vid src vid2 src2 previous_frame trigger_obj daq_output sample_count;
 frame_rate = 100;  % Hz (Default in Pylon viewer)
 recording_duration = 30; % Duration (s)
 
