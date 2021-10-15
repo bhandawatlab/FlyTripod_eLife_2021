@@ -28,9 +28,9 @@
 clear; close all; daqreset;
 imaqreset;
 
-global total_frame_count savecount vid src vid2 src2 frame_queue diffarray rROI frame_queue_length previous_frame previous_sad;
-frame_rate = 222.22222;  % Hz (Default in Pylon viewer)
-recording_duration = 5; % Duration (s)
+global total_frame_count savecount vid src vid2 src2 previous_frame trigger_obj daq_output;
+frame_rate = 100;  % Hz (Default in Pylon viewer)
+recording_duration = 30; % Duration (s)
 
 %Counting total number of preview frames in real time. We need to keep
 %track of number of frames to reset the culmulating data every predefined
@@ -60,6 +60,15 @@ savecount = 1;
 %% Camera 2 setup
 %Creating video and source object
 [vid2, src2] = setDefaultCameraParameters(2, frame_rate, recording_duration);
+
+%% Set up the trigger object
+trigger_obj = daq('ni');
+trigger_obj.Rate=frame_rate;
+trigger_obj.addoutput('Dev3','ao0','voltage'); % Dual Basler camera trigger
+
+% Set up the DAQ output signal
+sample_count = round(frame_rate * recording_duration);
+daq_output = 5 .* ones(sample_count,1);
 
 %% Create the preview window
 % Create the figure

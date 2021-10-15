@@ -4,26 +4,18 @@
 
 function PreviewUpdate(obj,event,hImage)
 
-global total_frame_count savecount frame_queue diffarray vid rROI w frame_queue_length previous_frame previous_sad;
+global total_frame_count savecount vid vid2 previous_frame previous_sad trigger_obj daq_output;
 
     try
         % Threshold for the sum of absolute differences
         sad_threshold = 5500;
-
-        numavg = 2; %Number of frames to average. Need this to smooth out noise.
-        %Change the value to appropriate value for your application, if needed. 
 
         % Get the frame
         current_frame = event.Data;
 
         % Display the current image frame.
         set(hImage, 'CData', current_frame);
-
-        % Add it to the frame queue
-        current_frame_index = total_frame_count;
-
-%         % If the number of frames we want to average is reached
-%         if rem(current_frame_index,numavg)==0
+        
         % Quantify motion in a given range of frames
         previous_motion_score = SumAbsDiff(current_frame, previous_frame);
         previous_sad = [previous_sad previous_motion_score];            
@@ -31,58 +23,49 @@ global total_frame_count savecount frame_queue diffarray vid rROI w frame_queue_
             sad_mean = mean(previous_sad);
             if sad_mean > sad_threshold
                 fprintf("Motion detected: %.1f\n", sad_mean)
-                
-                % start acquisition
-                trigger(vid);
                 disp('Recording...');
+                
+                %% Start acquisition
+                % Set the trigger modes to external
+                triggerconfig(vid, 'hardware', 'DeviceSpecific', 'DeviceSpecific');
+                triggerconfig(vid2, 'hardware', 'DeviceSpecific', 'DeviceSpecific');
+                
+                %trigger(vid);
+                trigger_obj.preload(daq_output);
+                startForeground(trigger_obj);
+                disp('Recording complete.');
+                
+                %% Save the camera 1 video
+                disp('Saving camera 1...');
                 [frames, timeStamp] = getdata(vid);
-                s = struct('timeStamp', timeStamp, 'frames', frames);
+                s = struct();
+                s(1).Camera1Timestamps = timeStamp;
+                s(1).Camera1Frames = frames;
+                % savecount=savecount+1;
+                clear frames;
+                
+                %% Save the camera 2 video
+                disp('Saving camera 2...');
+                [frames, timeStamp] = getdata(vid2);
+                s(1).Camera2Timestamps = timeStamp;
+                s(1).Camera2Frames = frames;
                 saver(s);
                 savecount=savecount+1;
                 clear frames;
+                %start(vid2);
+                disp('Saving complete.');
+                
+                % Set the trigger modes back to manual (allows previewing)
+                triggerconfig(vid, 'Manual');
+                triggerconfig(vid2, 'Manual');
+                
+                % Start the videos again
                 start(vid);
+                start(vid2);
             else
                 fprintf("%d\n", sad_mean)
             end
             previous_sad = [];
-        end
-                
-%             if previous_motion_score >= t1
-% 
-%                 %start acquisition
-%                 trigger(vid);
-%                 disp('Recording...');
-%                 [frames, timeStamp] = getdata(vid);
-%                 s = struct('timeStamp', timeStamp, 'frames', frames);
-%                 framesq = squeeze(frames);
-% 
-%                 %Check if the fly walked across the frame. If so, save the vid.
-% %                 if iswalkingD(framesq) == true
-%                 current_max_diff = sum(diff(norm(framesq), 1, 3), 'all');
-%                 disp("Current max: ");
-%                 disp(current_max_diff);
-%             
-%                 post_acquisition_motion_score = diffavg(framesq);  % Quantify motion in a given range of frames
-%                 if post_acquisition_motion_score >= t1
-%                     saver(s);
-%                     savecount=savecount+1;
-%                 else
-%                     disp('Not worthy. Resume monitering... Press any key to stop.');
-%                     clear frames;
-%                 end
-%                 start(vid);
-%             end
-        end
-
-%         subplot(2,2,3);
-%         plot(diffarray);
-        drawnow
-
-
-        if total_frame_count==frame_queue_length
-            total_frame_count=0;
-%             clear frame_queue
-%             clear diffarray
         end
 
         % Update the previous frame and frame count
@@ -91,6 +74,7 @@ global total_frame_count savecount frame_queue diffarray vid rROI w frame_queue_
 
         if savecount>=600
             stoppreview(vid);
+            stoppreview(vid2);
         end
     catch ME
         disp("ruh roh")
