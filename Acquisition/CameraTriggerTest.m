@@ -1,4 +1,4 @@
-output_file = 'D:\GitHub\FlyTripod_eLife_2021\Acquisition\TestVideo.avi';
+output_file = 'D:\GitHub\FlyTripod_eLife_2021\Acquisition\TestVideo2.avi';
 frameRate = 100; %20; %  20; %200;  %320;
 numSecs = 10; % Ephys. recording duration
 numFrames = ceil(numSecs * frameRate);
@@ -26,13 +26,13 @@ src1.DeviceLinkThroughputLimitMode = 'Off';
 
 % Set up the DAQ output
 s = daq('ni');
-s.Rate=frameRate*2;
+s.Rate = frameRate*2;
 s.addoutput('Dev3','ao0','voltage'); % Dual Basler camera trigger    
 
 %% Start the normal ephys. acquisition
 disp('Data acquisition starting.');
 
-% Start the listener in the background
+% Set up the DAQ output signal
 ephys_output = zeros(numFrames*2, 1);
 ephys_output(1:2:end) = 10;
 
@@ -45,13 +45,14 @@ s.preload(ephys_output);
 disp(['Number queued: ' num2str(s.NumScansQueued)]);
 
 % Start the acquisition
+disp('Starting acquisition')
 s.start();
 while s.Running
     pause(0.5)
     fprintf("While loop: Frames acquired = %d\n", vid1.FramesAcquired)
 end
 
-fprintf("Acquisition stopped with %d frames acquired\n", vid1.FramesAcquired);
+fprintf("Acquisition completed with %d frames acquired\n", vid1.FramesAcquired);
 disp(['Frames acquired (vid1): ' num2str(vid1.FramesAcquired)]);
 disp(['Frames logged: ' num2str(vid1.DiskLoggerFrameCount)]);
 closepreview(vid1);

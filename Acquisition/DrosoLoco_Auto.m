@@ -28,7 +28,8 @@
 clear; close all; daqreset;
 imaqreset;
 
-global total_frame_count savecount vid src vid2 src2 previous_frame trigger_obj daq_output sample_count;
+global frame_rate total_frame_count savecount vid src vid2 src2 previous_frame trigger_obj daq_output sample_count output_folder;
+output_folder = 'D:\Data\RawData';
 frame_rate = 100;  % Hz (Default in Pylon viewer)
 recording_duration = 30; % Duration (s)
 
@@ -37,21 +38,9 @@ recording_duration = 30; % Duration (s)
 %number of frames.
 total_frame_count = 1;
 full_roi = [0, 0, 1984, 1264];  % Full ROI for reference
-
-% Array that holds 10 frames for use in averaging and determining motion
-% whenever a new frame is acquired (This previously held 1000 frames but we
-% get the following error: [Error using zeros: Requested 1264x1984x1000
-% (18.7GB) array exceeds maximum array size preference. Creation of arrays
-% greater than this limit may take a long time and cause MATLAB to become
-% unresponsive.)]
-
-% TODO: This frame queue is too large to be manageable with high resolution
-% data. Change this to a single value (the motion score) or else we won't
-% be able to save data for longer than a couple of seconds.
-% frame_queue = zeros(rROI(4), rROI(3), frame_queue_length);
 previous_frame = NaN;
 
-%Need this variable to keep track of total number of videos saved.
+% Need this variable to keep track of total number of videos saved.
 savecount = 1;
 
 %% Camera 1 setup
@@ -63,12 +52,13 @@ savecount = 1;
 
 %% Set up the trigger object
 trigger_obj = daq('ni');
-trigger_obj.Rate=frame_rate;
+trigger_obj.Rate = frame_rate * 2;  % Doubled to create the on/off DAQ pulse
 trigger_obj.addoutput('Dev3','ao0','voltage'); % Dual Basler camera trigger
 
 % Set up the DAQ output signal
 sample_count = round(frame_rate * recording_duration);
-daq_output = 5 .* ones(sample_count,1);
+daq_output = zeros(sample_count*2, 1);  % Doubled to create the on/off DAQ pulse
+daq_output(1:2:end) = 10;  % 10 volts pulsed at the frame rate
 
 %% Create the preview window
 % Create the figure
@@ -78,7 +68,6 @@ preview_figure = figure('units','normalized','outerposition',[0 0 1 1]);
 % Load the ROI
 default_camera1_roi_data = load('D:\GitHub\FlyTripod_eLife_2021\Acquisition\Camera1_ROI.mat', 'camera1_roi');
 camera1_roi = default_camera1_roi_data.camera1_roi;
-% default_roi = [0,0,1000,1000];
 
 % Start video streaming
 subplot(1,2,1);  % Set the subplot section
