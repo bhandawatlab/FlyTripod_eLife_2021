@@ -19,7 +19,7 @@ global frame_rate total_frame_count savecount vid vid2 previous_frame previous_s
         % Quantify motion in a given range of frames
         previous_motion_score = SumAbsDiff(current_frame, previous_frame);
         previous_sad = [previous_sad previous_motion_score];            
-        if length(previous_sad) == 100
+        if length(previous_sad) == 1000
             sad_mean = mean(previous_sad);
             if sad_mean > sad_threshold
                 fprintf("Motion detected: %.1f\n", sad_mean)

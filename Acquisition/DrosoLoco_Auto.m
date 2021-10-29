@@ -31,7 +31,7 @@ imaqreset;
 global frame_rate total_frame_count savecount vid src vid2 src2 previous_frame trigger_obj daq_output sample_count output_folder;
 output_folder = 'D:\Data\RawData';
 frame_rate = 100;  % Hz (Default in Pylon viewer)
-recording_duration = 30; % Duration (s)
+recording_duration = 10; % Duration (s)
 
 %Counting total number of preview frames in real time. We need to keep
 %track of number of frames to reset the culmulating data every predefined
