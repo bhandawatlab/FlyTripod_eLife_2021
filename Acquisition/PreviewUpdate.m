@@ -4,11 +4,11 @@
 
 function PreviewUpdate(obj,event,hImage)
 
-global frame_rate total_frame_count savecount vid vid2 previous_frame previous_sad trigger_obj daq_output sample_count;
+global sad_roi frame_rate total_frame_count savecount vid vid2 previous_frame previous_sad trigger_obj daq_output sample_count;
 
     try
         % Threshold for the sum of absolute differences
-        sad_threshold = 5500;
+        sad_threshold = 850;
 
         % Get the frame
         current_frame = event.Data;
@@ -16,13 +16,19 @@ global frame_rate total_frame_count savecount vid vid2 previous_frame previous_s
         % Display the current image frame.
         set(hImage, 'CData', current_frame);
         
-        % Quantify motion in a given range of frames
+        % Quantify motion in a given range of frames within the selected
+        % ROI in camera 2
+        current_frame = imcrop(current_frame, sad_roi);
+        
+        % Show the frame
+        % figure('Name', 'Motion detection frame'); imshow(sad_frame);
+        
         previous_motion_score = SumAbsDiff(current_frame, previous_frame);
-        previous_sad = [previous_sad previous_motion_score];            
+        previous_sad = [previous_sad previous_motion_score];
         if length(previous_sad) == 1000
-            sad_mean = mean(previous_sad);
+            sad_mean = round(mean(previous_sad));
             if sad_mean > sad_threshold
-                fprintf("Motion detected: %.1f\n", sad_mean)
+                fprintf("Motion detected: %d\n", sad_mean)
                 disp('Recording...');
                 
                 %% Start acquisition

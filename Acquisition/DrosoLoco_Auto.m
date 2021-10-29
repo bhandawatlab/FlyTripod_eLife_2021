@@ -28,7 +28,7 @@
 clear; close all; daqreset;
 imaqreset;
 
-global frame_rate total_frame_count savecount vid src vid2 src2 previous_frame trigger_obj daq_output sample_count output_folder;
+global sad_roi frame_rate total_frame_count savecount vid src vid2 src2 previous_frame trigger_obj daq_output sample_count output_folder;
 output_folder = 'D:\Data\RawData';
 frame_rate = 100;  % Hz (Default in Pylon viewer)
 recording_duration = 10; % Duration (s)
@@ -86,11 +86,11 @@ camera1_roi_data = images.roi.Rectangle(gca,'Position', camera1_roi, 'FaceAlpha'
 pause;
 try
     updated_roi = camera1_roi_data.Position;
+    camera1_roi = updated_roi;
     save('D:\GitHub\FlyTripod_eLife_2021\Acquisition\Camera1_ROI.mat', 'camera1_roi');
     
     % Update and close the camera ROI
     stop(vid);
-    camera1_roi = updated_roi;
     vid.ROIPosition = camera1_roi;
     delete(camera1_roi_data);
     start(vid);
@@ -124,14 +124,39 @@ camera2_roi_data = images.roi.Rectangle(gca,'Position', camera2_roi, 'FaceAlpha'
 pause;
 try
     updated_roi = camera2_roi_data.Position;
+    camera2_roi = updated_roi;
     save('D:\GitHub\FlyTripod_eLife_2021\Acquisition\Camera2_ROI.mat', 'camera2_roi');
     
     % Update and close the camera ROI
     stop(vid2);
-    camera2_roi = updated_roi;
     vid2.ROIPosition = camera2_roi;
     delete(camera2_roi_data);
     start(vid2);
+catch ME
+    % Some error occurred if you get here.
+    errorMessage = sprintf('Error in function %s() at line %d.\n\nError Message:\n%s', ...
+        ME.stack(1).name, ME.stack(1).line, ME.message);
+    fprintf(1, '%s\n', errorMessage);
+    uiwait(warndlg(errorMessage));
+end
+
+%% Set the ROI for motion capture
+% Load the ROI
+default_sad_roi_data = load('D:\GitHub\FlyTripod_eLife_2021\Acquisition\Camera2_SAD_ROI.mat', 'sad_roi');
+sad_roi = default_sad_roi_data.sad_roi;
+
+% Start the ROI selection
+sad_roi_data = images.roi.Rectangle(gca,'Position', sad_roi, 'FaceAlpha', 0);
+
+% Pause and save the ROI
+pause;
+try
+    updated_roi = sad_roi_data.Position;
+    sad_roi = updated_roi;
+    save('D:\GitHub\FlyTripod_eLife_2021\Acquisition\Camera2_SAD_ROI.mat', 'sad_roi');
+    
+    % Update and close the SAD ROI
+    delete(sad_roi_data);
 catch ME
     % Some error occurred if you get here.
     errorMessage = sprintf('Error in function %s() at line %d.\n\nError Message:\n%s', ...
