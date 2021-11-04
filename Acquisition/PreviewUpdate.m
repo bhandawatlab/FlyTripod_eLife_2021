@@ -8,7 +8,7 @@ global sad_roi frame_rate total_frame_count savecount vid vid2 previous_frame pr
 
     try
         % Threshold for the sum of absolute differences
-        sad_threshold = 850;
+        sad_threshold = 950;
 
         % Get the frame
         current_frame = event.Data;
@@ -107,7 +107,7 @@ global sad_roi frame_rate total_frame_count savecount vid vid2 previous_frame pr
                 start(vid);
                 start(vid2);
             else
-                fprintf("%d\n", sad_mean)
+                fprintf("SAD: %d\n", sad_mean)
             end
             previous_sad = [];
         end
